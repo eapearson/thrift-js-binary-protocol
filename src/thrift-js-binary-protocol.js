@@ -35,7 +35,7 @@
  *     var protocol  = new Thrift.TBinaryProtocol(transport);
  */
 Thrift.TBinaryProtocol = function (transport, strictRead, strictWrite) {
-    this.buffer = [];
+    this.send_buffer = [];
     this.transport = transport;
     this.buffer_read_offset = 0;
     this.strictRead = (strictRead !== undefined ? strictRead : false);
