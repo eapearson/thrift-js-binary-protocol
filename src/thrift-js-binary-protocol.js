@@ -76,7 +76,7 @@ Thrift.TBinaryProtocol.prototype = {
         // For now. This is done by other protocols, although the best
         // practice seems to be to always write to the transport, without
         // buffering here.
-        this.transport.write(this.send_buf);
+        this.transport.write(this.send_buffer);
     },
     /**
      * Serializes the beginning of a struct.
@@ -157,25 +157,25 @@ Thrift.TBinaryProtocol.prototype = {
         if (byte <= Math.pow(2, 31) * -1 || byte >= Math.pow(2, 31)) {
             throw new Error(byte + " is incorrect for byte.");
         }
-        this.buffer.push(byte);
+        this.send_buffer.push(byte);
     },
     /** Serializes a number (short) */
     writeI16: function (i16) {
         if (i16 < Math.pow(2, 15) * -1 || i16 >= Math.pow(2, 16)) {
             throw new Error(i16 + " is incorrect for i16.");
         }
-        this.buffer.push(255 & i16 >> 8);
-        this.buffer.push(255 & i16);
+        this.send_buffer.push(255 & i16 >> 8);
+        this.send_buffer.push(255 & i16);
     },
     /** Serializes a number (int) */
     writeI32: function (i32) {
         if (i32 <= Math.pow(2, 31) * -1 || i32 >= Math.pow(2, 31)) {
             throw new Error(i32 + " is incorrect for i32.");
         }
-        this.buffer.push(255 & i32 >> 24);
-        this.buffer.push(255 & i32 >> 16);
-        this.buffer.push(255 & i32 >> 8);
-        this.buffer.push(255 & i32);
+        this.send_buffer.push(255 & i32 >> 24);
+        this.send_buffer.push(255 & i32 >> 16);
+        this.send_buffer.push(255 & i32 >> 8);
+        this.send_buffer.push(255 & i32);
     },
     /** Serializes a number (long, for values over MAX_INTEGER, it will overflow) */
     writeI64: function (i64) {
@@ -240,7 +240,7 @@ Thrift.TBinaryProtocol.prototype = {
 
         // Bits to bytes
         while (str.length) {
-            this.buffer.push(parseInt(str.substring(0, 8), 2));
+            this.send_buffer.push(parseInt(str.substring(0, 8), 2));
             str = str.substring(8);
         }
     },
@@ -251,14 +251,14 @@ Thrift.TBinaryProtocol.prototype = {
         var bufView = new Uint8Array(buf);
         this.writeI32(s.length);
         for (var i = 0, strLen = s.length; i < strLen; i++) {
-            this.buffer.push(s.charCodeAt(i));
+            this.send_buffer.push(s.charCodeAt(i));
         }
     },
     /** Serializes abritrary array of bytes */
     writeBinary: function (buf) {
         this.writeI32(buf.length);
         for (var i = 0; i < buf.length; i++) {
-            this.buffer.push(b);
+            this.send_buffer.push(b);
         }
     },
     /**
@@ -393,7 +393,8 @@ Thrift.TBinaryProtocol.prototype = {
     /** Returns the an object with a value property set to the 
      next value found in the protocol buffer */
     readByte: function () {
-        var val = this.buffer[this.buffer_read_offset++];
+        var val = this.transport.readByte();
+        // [this.buffer_read_offset++];
         if (val > 0x7f) {
             val = 0 - ((val - 1) ^ 0xff);
         }
