@@ -72,7 +72,12 @@ Thrift.TBinaryProtocol.prototype = {
     /**
      * Serializes the end of a Thrift RPC message.
      */
-    writeMessageEnd: function () {},
+    writeMessageEnd: function () {
+        // For now. This is done by other protocols, although the best
+        // practice seems to be to always write to the transport, without
+        // buffering here.
+        this.transport.write(this.send_buf);
+    },
     /**
      * Serializes the beginning of a struct.
      * @param {string} name - The name of the struct.
