@@ -38,7 +38,6 @@ define([
     'thrift'
 ], function (Thrift) {
     Thrift.TBinaryProtocol = function (transport, strictRead, strictWrite) {
-        this.send_buffer = [];
         this.transport = transport;
         this.buffer_read_offset = 0;
         this.strictRead = (strictRead !== undefined ? strictRead : false);
@@ -76,10 +75,6 @@ define([
          * Serializes the end of a Thrift RPC message.
          */
         writeMessageEnd: function () {
-            // For now. This is done by other protocols, although the best
-            // practice seems to be to always write to the transport, without
-            // buffering here.
-            this.transport.write(this.send_buffer);
         },
         /**
          * Serializes the beginning of a struct.
@@ -161,7 +156,6 @@ define([
                 throw new Error(byte + " is incorrect for byte.");
             }
             this.transport.writeByte(byte);
-            // this.send_buffer.push(byte);
         },
         /** Serializes a number (short) */
         writeI16: function (i16) {
@@ -170,8 +164,6 @@ define([
             }
             this.transport.writeByte(255 & i16 >> 8);
             this.transport.writeByte(255 & i16);
-//        this.send_buffer.push(255 & i16 >> 8);
-//        this.send_buffer.push(255 & i16);
         },
         /** Serializes a number (int) */
         writeI32: function (i32) {
@@ -246,7 +238,7 @@ define([
 
             // Bits to bytes
             while (str.length) {
-                this.send_buffer.push(parseInt(str.substring(0, 8), 2));
+                this.transport.writeByte(parseInt(str.substring(0, 8), 2));
                 str = str.substring(8);
             }
         },
@@ -257,14 +249,14 @@ define([
             var bufView = new Uint8Array(buf);
             this.writeI32(s.length);
             for (var i = 0, strLen = s.length; i < strLen; i++) {
-                this.send_buffer.push(s.charCodeAt(i));
+                this.transport.writeByte(s.charCodeAt(i));
             }
         },
         /** Serializes abritrary array of bytes */
         writeBinary: function (buf) {
             this.writeI32(buf.length);
             for (var i = 0; i < buf.length; i++) {
-                this.send_buffer.push(b);
+                this.transport.writeByte(b);
             }
         },
         /**
