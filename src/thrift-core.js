@@ -333,5 +333,7 @@ define([], function () {
     Thrift.copyMap = copyMap;
     Thrift.copyList = copyList;
 
+   
+
     return Thrift;
 });
