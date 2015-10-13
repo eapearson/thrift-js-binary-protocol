@@ -1,3 +1,6 @@
+/*global define */
+/*jslint white: true */
+
 /**
  * The MIT License (MIT)
  * 
@@ -37,6 +40,7 @@
 define([
     'thrift'
 ], function (Thrift) {
+    'use strict';
     Thrift.TBinaryProtocol = function (transport, strictRead, strictWrite) {
         this.transport = transport;
         this.buffer_read_offset = 0;
@@ -75,22 +79,28 @@ define([
          * Serializes the end of a Thrift RPC message.
          */
         writeMessageEnd: function () {
+            // Nothing to do
         },
         /**
          * Serializes the beginning of a struct.
          * @param {string} name - The name of the struct.
          */
-        writeStructBegin: function (name) {},
+        writeStructBegin: function (name) {
+            // EAP - nothing to do or not implemented?
+        },
         /**
          * Serializes the end of a struct.
          */
-        writeStructEnd: function () {},
+        writeStructEnd: function () {
+            // EAP - nothing to do or not implemented?
+        },
         /**
          * Serializes the beginning of a struct field.
          * @param {string} name - The name of the field.
          * @param {Thrift.Protocol.Type} fieldType - The data type of the field.
          * @param {number} fieldId - The field's unique identifier.
          */
+        // EAP - name in args but not used? Other impls don't seem to use either.
         writeFieldBegin: function (name, type, id) {
             this.writeByte(type);
             this.writeI16(id);
@@ -98,7 +108,9 @@ define([
         /**
          * Serializes the end of a field.
          */
-        writeFieldEnd: function () {},
+        writeFieldEnd: function () {
+            // EAP - nothing to do or not implemented?
+        },
         /**
          * Serializes the end of the set of fields for a struct.
          */
@@ -111,41 +123,48 @@ define([
          * @param {Thrift.Type} valType - The data type of the value.
          * @param {number} [size] - The number of elements in the map (ignored).
          */
-        writeMapBegin: function (ktype, vtype, size) {
-            this.writeByte(ktype);
-            this.writeByte(vtype);
+        writeMapBegin: function (keyType, valType, size) {
+            this.writeByte(keyType);
+            this.writeByte(valType);
             this.writeI32(size);
         },
         /**
          * Serializes the end of a map.
          */
-        writeMapEnd: function () {},
+        writeMapEnd: function () {
+            // EAP - nothing to do or not implemented?
+        },
         /**
          * Serializes the beginning of a list collection.
          * @param {Thrift.Type} elemType - The data type of the elements.
          * @param {number} size - The number of elements in the list.
          */
-        writeListBegin: function (etype, size) {
-            this.writeByte(etype);
+        writeListBegin: function (elemType, size) {
+            this.writeByte(elemType);
             this.writeI32(size);
         },
         /**
          * Serializes the end of a list.
          */
-        writeListEnd: function () {},
+        writeListEnd: function () {
+            // EAP - nothing to do or not implemented?
+            // Oh why are there methods for noops ??
+        },
         /**
          * Serializes the beginning of a set collection.
          * @param {Thrift.Type} elemType - The data type of the elements.
          * @param {number} size - The number of elements in the list.
          */
-        writeSetBegin: function (etype, size) {
-            this.writeByte(etype);
+        writeSetBegin: function (elemType, size) {
+            this.writeByte(elemType);
             this.writeI32(size);
         },
         /**
          * Serializes the end of a set.
          */
-        writeSetEnd: function () {},
+        writeSetEnd: function () {
+            // EAP - nothing to do or not implemented?
+        },
         /** Serializes a boolean */
         writeBool: function (bool) {
             this.writeByte(bool ? 1 : 0);
@@ -158,6 +177,7 @@ define([
             this.transport.writeByte(byte);
         },
         /** Serializes a number (short) */
+        /*jslint bitwise: true */
         writeI16: function (i16) {
             if (i16 < Math.pow(2, 15) * -1 || i16 >= Math.pow(2, 16)) {
                 throw new Error(i16 + " is incorrect for i16.");
@@ -242,6 +262,8 @@ define([
                 str = str.substring(8);
             }
         },
+        /*jslint bitwise: false */
+
         /** Serializes a string */
         writeString: function (str) {
             var s = this.encode_utf8(str);
@@ -255,9 +277,9 @@ define([
         /** Serializes abritrary array of bytes */
         writeBinary: function (buf) {
             this.writeI32(buf.length);
-            for (var i = 0; i < buf.length; i++) {
-                this.transport.writeByte(b);
-            }
+            buf.forEach(function (byte) {
+                this.transport.writeByte(byte);
+            });
         },
         /**
          @class
@@ -274,7 +296,7 @@ define([
             var version = this.readI32().value;
             var name, type, seqid;
             if (version < 0) {
-                if (version & Thrift.TBinaryProtocol.VERSION_MASK != Thrift.TBinaryProtocol.VERSION_1) {
+                if (version & Thrift.TBinaryProtocol.VERSION_MASK !== Thrift.TBinaryProtocol.VERSION_1) {
                     throw new Thrift.TException('Missing version identifier');
                 }
                 type = version & Thrift.TBinaryProtocol.TYPE_MASK;
@@ -318,7 +340,7 @@ define([
          */
         readFieldBegin: function () {
             var type = this.readByte().value;
-            if (type == Thrift.Type.STOP) {
+            if (type === Thrift.Type.STOP) {
                 return {fname: '', ftype: type, fid: 0};
             } else {
                 return {fname: '', ftype: type, fid: this.readI16().value};
@@ -504,7 +526,7 @@ define([
                     this.readStructBegin();
                     while (true) {
                         ret = this.readFieldBegin();
-                        if (ret.ftype == Thrift.Type.STOP) {
+                        if (ret.ftype === Thrift.Type.STOP) {
                             break;
                         }
                         this.skip(ret.ftype);
@@ -559,6 +581,6 @@ define([
             return String.fromCharCode.apply(null, new Uint8Array(barr));
         }
     };
-    
+
     return Thrift;
 });
