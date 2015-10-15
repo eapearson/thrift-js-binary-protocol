@@ -285,7 +285,7 @@ define([
             }
 
             this.rpos += len;
-            return this.recv_buf.slice(this.rpos - 1, this.rpos);
+            return this.recv_buf.slice(this.rpos - len, this.rpos);
         },
         /**
          * Returns the entire response buffer.
