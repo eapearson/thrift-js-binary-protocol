@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="/bower_components/requirejs/require.js"></script>
+        <script src="/test/require-config.js"></script>
+    </head>
+    <body>
+        <h1>Thrift Binary Protocol<br>Coverage and Performance Test</h1>
+        <ul>
+            <li>Read/Write String <span  id="string"></span></li>
+            <li>Read/Write binary <span  id="binary"></span></li>
+            <li>Read/Write List <span  id="list"></span></li>
+            <li>Read/Write bool <span  id="bool"></span></li>
+            <li>Read/Write byte <span  id="byte"></span></li>
+            <li>Read/Write I16 <span  id="I16"></span></li>
+            <li>Read/Write I32 <span  id="I32"></span></li>
+            <li>Read/Write I64 <span  id="I64"></span></li>
+        </ul>
+        <script>
+            require([
+                'thrift_echo_transport',
+                'thrift_binary_protocol'
+            ], function (Thrift) {
+                var transport = new Thrift.EchoTransport(),
+                    protocol = new Thrift.TBinaryProtocol(transport),
+                    iters = 100000,
+                    ticksPerSecond = 1000;
+
+                function test(name, fun, debug) {
+                    var start = (new Date()).getTime(), i, elapsed, rate;
+                    for (i = 0; i < iters; i += 1) {
+                        transport.close();
+                        transport.open();
+                        fun();
+                    }
+                    elapsed = (new Date()).getTime() - start;
+                    rate = Math.round(ticksPerSecond * iters / elapsed);
+                    document.querySelector('#' + name).innerHTML = iters + '/' + elapsed + ' = ' + String(rate);
+                }
+
+                // Get and Write String
+
+                test('string', function () {
+                    protocol.writeString('hello');
+                    var greeting = protocol.readString();
+                });
+                
+                 test('binary', function () {
+                    protocol.writeBinary([1,2,3,4,5,6,7,8,9,10]);
+                    var bin = protocol.readBinary();
+                });
+
+                test('list', function () {
+                    var listInfo, list = [], i, result;
+                    protocol.writeListBegin(Thrift.Type.STRING, 2);
+                    ['peet', 'coco'].forEach(function (pet) {
+                        protocol.writeString(pet);
+                    });
+                    protocol.writeListEnd();
+
+                    listInfo = protocol.readListBegin();
+                    for (i = 0; i < listInfo.size; i += 1) {
+                        result = protocol.readString();
+                        if (result) {
+                            list.push(result.value);
+                        }
+                    }
+                    protocol.readListEnd();
+                });
+                
+                test('bool', function () {
+                    protocol.writeBool(true);
+                    var value = protocol.readBool();
+                });
+                
+                 test('byte', function () {
+                    protocol.writeByte(true);
+                    var value = protocol.readByte();
+                });
+
+                test('I16', function () {
+                    protocol.writeI16(true);
+                    var value = protocol.readI16();
+                });
+
+                test('I32', function () {
+                    protocol.writeI32(true);
+                    var value = protocol.readI32();
+                });
+                
+                test('I64', function () {
+                    protocol.writeI64(true);
+                    var value = protocol.readI64();
+                });
+            });
+        </script>
+    </body>
+</html>

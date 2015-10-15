@@ -1,16 +1,21 @@
-# Apache Thrift BinaryPorotocol for JavaScript
+# Javascript clients for Apache Thrift
 
-An implementation of TBinaryProtocol for JavaScript Thrift library.
+An implementation of and XMLHttpRequest transport and TBinaryProtocol for JavaScript Thrift library.
 
-## Why not part of Thrift?
+## History
 
-The reason is described here: https://github.com/apache/thrift/pull/345.
+- The binary protocol was lifted from:
+- The XMLHttpRequest and other transports extracted from the Thrift core
+
+As we began to integrate the Thrift javascript client for our service apis, it was discovered that the javascript components in both the Thrift core, as well as the most advanced binary protocol implementation, both suffered from problems. The Thrift core javascript was too tied into the JSON protocol implementation found therein, and included code that we would never use. E.g. the 
+
 
 ## Running tests
 
-Tests require the `thrift.js` file to be placed in the the `test/deps` directory. The easiest way to obtain this file is to clone the [Thrift repository](https://github.com/apache/thrift) and copy the file from `lib/js/src/thrift.js` to deps folder. Then simply open the `test-binary.html` in the browser.
+TO BE DONE
 
 ## Usage
+
 
 `Thrift.BinaryProtocol` depends on `thrift` library being present.
 
@@ -23,6 +28,8 @@ Tests require the `thrift.js` file to be placed in the the `test/deps` directory
     </script>
 
 All methods of the standard `TBinaryProtocol` are implemented.
+
+PROVIDE REFERENCE to Thrift protocol definitions
 
 ## License
 

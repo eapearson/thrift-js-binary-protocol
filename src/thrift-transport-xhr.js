@@ -257,7 +257,7 @@ define([
          * buffer.
          * @param {number} len - The number of characters to return.
          * @returns {string} Characters sent by the server.
-         */
+         */ 
         readByte: function () {
             var avail = this.wpos - this.rpos;
             if (avail === 0) {
@@ -277,17 +277,15 @@ define([
                 return '';
             }
 
-            var give = len;
+            // var give = len;
 
             if (avail < len) {
-                give = avail;
+                throw new Error('Request more bytes (' + len + ') than are available (' + avail + ')');
+                // give = avail;
             }
 
-            var ret = this.read_buf.substr(this.rpos, give);
-            this.rpos += give;
-
-            //clear buf when complete?
-            return ret;
+            this.rpos += len;
+            return this.recv_buf.slice(this.rpos - 1, this.rpos);
         },
         /**
          * Returns the entire response buffer.
@@ -304,7 +302,11 @@ define([
             this.send_buf.push(b);
         },
         write: function (buf) {
-            this.send_buf = buf;
+            // this.send_buf = buf;
+//            buf.forEach(function (byte) {
+//                this.send_buf.push(byte);
+//            })
+            this.send_buf = this.send_buf.concat(buf);
         },
         /**
          * Returns the send buffer.

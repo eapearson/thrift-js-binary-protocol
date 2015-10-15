@@ -8,9 +8,12 @@
   "description": "Apache Thrift TBinaryProtocol for JavaScript client.",
   "main": "src/thrift-js-binary-protocol.js",
   "keywords": [
-    "thrift", "binary"
+    "thrift",
+    "binary"
   ],
   "license": "MIT",
-  "ignore": [
-  ]
+  "ignore": [],
+  "devDependencies": {
+    "requirejs": "2.1.20"
+  }
 }

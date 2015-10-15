@@ -266,20 +266,20 @@ define([
 
         /** Serializes a string */
         writeString: function (str) {
-            var s = this.encode_utf8(str);
-            var buf = new ArrayBuffer(s.length);
-            var bufView = new Uint8Array(buf);
+            var s = this.encode_utf8(str),
+                strLen = s.length;
             this.writeI32(s.length);
-            for (var i = 0, strLen = s.length; i < strLen; i++) {
+            for (var i = 0; i < strLen; i += 1) {
                 this.transport.writeByte(s.charCodeAt(i));
             }
         },
         /** Serializes abritrary array of bytes */
         writeBinary: function (buf) {
             this.writeI32(buf.length);
-            buf.forEach(function (byte) {
-                this.transport.writeByte(byte);
-            });
+            this.transport.write(buf);
+//            buf.forEach(function (byte) {
+//                this.transport.writeByte(byte);
+//            }.bind(this));
         },
         /**
          @class
@@ -428,7 +428,9 @@ define([
         /** Returns the an object with a value property set to the 
          next value found in the protocol buffer */
         readI32: function () {
-            return {value: ((this.readByte().value & 255) << 24 | (this.readByte().value & 255) << 16 | (this.readByte().value & 255) << 8 | this.readByte().value & 255)};
+            var buf = this.transport.read(4);
+            return {value: ((buf[0] & 255) << 24 | (buf[1] & 255) << 16 | (buf[2] & 255) << 8 | buf[3] & 255)};
+            // return {value: ((this.readByte().value & 255) << 24 | (this.readByte().value & 255) << 16 | (this.readByte().value & 255) << 8 | this.readByte().value & 255)};
         },
         /** Returns the an object with a value property set to the 
          next value found in the protocol buffer */
@@ -478,8 +480,8 @@ define([
         /** Returns the an object with a value property set to the 
          next value found in the protocol buffer */
         readString: function () {
-            var size = this.readI32().value;
-            var bytes = this.readMultiple(size);
+            var size = this.readI32().value,
+                bytes = this.readMultiple(size);
             return {value: this.decode_utf8(this.stringFromByteArray(bytes))};
         },
         readBinary: function () {
@@ -495,11 +497,12 @@ define([
         /** Returns the an object with a value property set to the 
          next value found in the protocol buffer */
         readMultiple: function (len) {
-            var buf = [];
-            for (var i = 0; i < len; i++) {
-                buf.push(this.readByte().value);
-            }
-            return buf;
+            return this.transport.read(len);
+//            var buf = [];
+//            for (var i = 0; i < len; i++) {
+//                buf.push(this.readByte().value);
+//            }
+//            return buf;
         },
         /** 
          * Method to arbitrarily skip over data */
