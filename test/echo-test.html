@@ -14,25 +14,56 @@ and open the template in the editor.
     </head>
     <body>
         <h1>Thrift Binary Protocol<br>Coverage and Performance Test</h1>
-        <ul>
-            <li>Read/Write String <span  id="string"></span></li>
-            <li>Read/Write binary <span  id="binary"></span></li>
-            <li>Read/Write List <span  id="list"></span></li>
-            <li>Read/Write bool <span  id="bool"></span></li>
-            <li>Read/Write byte <span  id="byte"></span></li>
-            <li>Read/Write I16 <span  id="I16"></span></li>
-            <li>Read/Write I32 <span  id="I32"></span></li>
-            <li>Read/Write I64 <span  id="I64"></span></li>
-        </ul>
+        <table>
+            <tr>
+                <td>Read/Write String</td>
+                <td id="string" style="text-align: right;"></td>
+            </tr>
+            <tr>
+                <td>Read/Write binary</td>
+                <td id="binary" style="text-align: right;"></td>
+            </tr>
+            <tr>
+                <td>Read/Write list</td>
+                <td id="list" style="text-align: right;"></td>
+            </tr>
+            <tr>
+                <td>Read/Write bool</td>
+                <td id="bool" style="text-align: right;"></td>
+            </tr>
+            <tr>
+                <td>Read/Write byte</td>
+                <td id="byte" style="text-align: right;"></td>
+            </tr>
+            <tr>
+                <td>Read/Write I16</td>
+                <td id="I16" style="text-align: right;"></td>
+            </tr>
+            <tr>
+                <td>Read/Write I32</td>
+                <td id="I32" style="text-align: right;"></td>
+            </tr>
+            <tr>
+                <td>Read/Write I64</td>
+                <td id="I64" style="text-align: right;"></td>
+            </tr>
+        </table>
         <script>
             require([
                 'thrift_echo_transport',
                 'thrift_binary_protocol'
             ], function (Thrift) {
                 var transport = new Thrift.EchoTransport(),
-                    protocol = new Thrift.TBinaryProtocol(transport),
-                    iters = 100000,
-                    ticksPerSecond = 1000;
+                        protocol = new Thrift.TBinaryProtocol(transport),
+                        iters = 100000,
+                        ticksPerSecond = 1000;
+
+                // stolen from http://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript
+                function numberWithCommas(x) {
+                    var parts = x.toString().split(".");
+                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    return parts.join(".");
+                }
 
                 function test(name, fun, debug) {
                     var start = (new Date()).getTime(), i, elapsed, rate;
@@ -43,19 +74,45 @@ and open the template in the editor.
                     }
                     elapsed = (new Date()).getTime() - start;
                     rate = Math.round(ticksPerSecond * iters / elapsed);
-                    document.querySelector('#' + name).innerHTML = iters + '/' + elapsed + ' = ' + String(rate);
+                    document.querySelector('#' + name).innerHTML = numberWithCommas(String(rate));
                 }
 
                 // Get and Write String
 
                 test('string', function () {
-                    protocol.writeString('hello');
-                    var greeting = protocol.readString();
+                    var arg = 'hello';
+                    protocol.writeString(arg);
+                    var result = protocol.readString();
+                    if (arg !== result.value) {
+                        console.log(arg); 
+                        console.log(result);
+                        throw new Error('String error');
+                    }
                 });
-                
-                 test('binary', function () {
-                    protocol.writeBinary([1,2,3,4,5,6,7,8,9,10]);
-                    var bin = protocol.readBinary();
+
+                function listEquals(l1, l2) {
+                    var i,
+                        len1 = l1.length,
+                        len2 = l2.length;
+                    if (len1 !== len2) {
+                        return false;
+                    }
+                    for (i = 0; i < len1; i +=1) {
+                        if (l1[i] !== l2[i]) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                test('binary', function () {
+                    var arg = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+                    protocol.writeBinary(arg);
+                    var result = protocol.readBinary();
+                    if (!listEquals(arg, result.value)) {
+                        console.log(arg); 
+                        console.log(result);
+                        throw new Error('Binary error');
+                    }
                 });
 
                 test('list', function () {
@@ -75,30 +132,60 @@ and open the template in the editor.
                     }
                     protocol.readListEnd();
                 });
-                
+
                 test('bool', function () {
-                    protocol.writeBool(true);
-                    var value = protocol.readBool();
+                    var arg = true;
+                    protocol.writeBool(arg);
+                    var result = protocol.readBool();
+                    if (arg !== result.value) {
+                        console.log(arg); 
+                        console.log(result);
+                        throw new Error('Bool error');
+                    }
                 });
-                
-                 test('byte', function () {
-                    protocol.writeByte(true);
-                    var value = protocol.readByte();
+
+                test('byte', function () {
+                    var arg = 100;
+                    protocol.writeByte(arg);
+                    var result = protocol.readByte();
+                    if (arg !== result.value) {
+                        console.log(arg); 
+                        console.log(result);
+                        throw new Error('Byte error');
+                    }
                 });
 
                 test('I16', function () {
-                    protocol.writeI16(true);
-                    var value = protocol.readI16();
+                    var arg = 10000;
+                    protocol.writeI16(arg);
+                    var result = protocol.readI16();
+                    if (arg !== result.value) {
+                        console.log(arg); 
+                        console.log(result);
+                        throw new Error('I16 error');
+                    }
                 });
 
                 test('I32', function () {
-                    protocol.writeI32(true);
-                    var value = protocol.readI32();
+                    var arg = 10000;
+                    protocol.writeI32(arg);
+                    var result = protocol.readI32();
+                    if (arg !== result.value) {
+                        console.log(arg); 
+                        console.log(result);
+                        throw new Error('I32 error');
+                    }
                 });
-                
+
                 test('I64', function () {
-                    protocol.writeI64(true);
-                    var value = protocol.readI64();
+                    var arg = 10000;
+                    protocol.writeI64(arg);
+                    var result = protocol.readI64();
+                    if (arg !== result.value) {
+                        console.log(arg); 
+                        console.log(result);
+                        throw new Error('I64 error');
+                    }
                 });
             });
         </script>
