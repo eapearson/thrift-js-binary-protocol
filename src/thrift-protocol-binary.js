@@ -428,9 +428,7 @@ define([
         /** Returns the an object with a value property set to the 
          next value found in the protocol buffer */
         readI32: function () {
-            var buf = this.transport.read(4);
-            return {value: ((buf[0] & 255) << 24 | (buf[1] & 255) << 16 | (buf[2] & 255) << 8 | buf[3] & 255)};
-            // return {value: ((this.readByte().value & 255) << 24 | (this.readByte().value & 255) << 16 | (this.readByte().value & 255) << 8 | this.readByte().value & 255)};
+            return {value: ((this.readByte().value & 255) << 24 | (this.readByte().value & 255) << 16 | (this.readByte().value & 255) << 8 | this.readByte().value & 255)};
         },
         /** Returns the an object with a value property set to the 
          next value found in the protocol buffer */
@@ -498,11 +496,6 @@ define([
          next value found in the protocol buffer */
         readMultiple: function (len) {
             return this.transport.read(len);
-//            var buf = [];
-//            for (var i = 0; i < len; i++) {
-//                buf.push(this.readByte().value);
-//            }
-//            return buf;
         },
         /** 
          * Method to arbitrarily skip over data */

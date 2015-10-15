@@ -274,7 +274,7 @@ define([
             var avail = this.wpos - this.rpos;
 
             if (avail === 0) {
-                return '';
+                return [];
             }
 
             // var give = len;
