@@ -20,8 +20,9 @@
 /*jshint white: true */
 
 define([
-    'thrift'
-], function (Thrift) {
+    'thrift', 
+    'bluebird'
+], function (Thrift, Promise) {
     'use strict';
 
     /**

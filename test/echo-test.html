@@ -16,6 +16,10 @@ and open the template in the editor.
         <h1>Thrift Binary Protocol<br>Coverage and Performance Test</h1>
         <table>
             <tr>
+                <th>Test</th>
+                <th>ops/sec</th>
+            </tr>
+            <tr>
                 <td>Read/Write String</td>
                 <td id="string" style="text-align: right;"></td>
             </tr>
@@ -55,7 +59,7 @@ and open the template in the editor.
             ], function (Thrift) {
                 var transport = new Thrift.EchoTransport(),
                         protocol = new Thrift.TBinaryProtocol(transport),
-                        iters = 100000,
+                        iters = 1000000,
                         ticksPerSecond = 1000;
 
                 // stolen from http://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript

@@ -14,6 +14,7 @@
   "license": "MIT",
   "ignore": [],
   "devDependencies": {
-    "requirejs": "2.1.20"
+    "requirejs": "2.1.20",
+    "bluebird": "2.10.2"
   }
 }
