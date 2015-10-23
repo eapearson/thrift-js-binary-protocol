@@ -92,7 +92,7 @@ define([
             return new Promise(function (resolve, reject, notify) {
                 var xhr = new XMLHttpRequest();
 
-                xhr.onload = function (e) {
+                xhr.onload=  function (e) {
                     if (xhr.status === 502) {
                         reject({
                             type: 'ThriftError',
@@ -185,18 +185,7 @@ define([
                         data: xhr
                     });
                 };
-                xhr.timeout = timeout;
-                try {
-                    xhr.open('POST', thriftTransport.url, true);
-                } catch (ex) {
-                    reject({
-                        type: 'ThriftError',
-                        reason: 'ConnectionOpenError',
-                        message: 'Error opening connecting to to thrift http service',
-                        suggestions: 'This is probably a malformed url',
-                        data: xhr
-                    });
-                }
+               
 
                 xhr.timeout = timeout;
                 try {
@@ -215,7 +204,7 @@ define([
                     xhr.setRequestHeader('Accept', 'application/x-thrift');
                     xhr.setRequestHeader('Content-type', 'application/x-thrift');
                     xhr.responseType = 'arraybuffer';
-                    xhr.send(new Uint8Array(thriftTransport.send_buf.join()));
+                    xhr.send(new Uint8Array(thriftTransport.send_buf));
                 } catch (ex) {
                     reject({
                         type: 'ThriftError',
@@ -291,14 +280,12 @@ define([
          * @param {string} buf - The buffer to send.
          */
         writeByte: function (b) {
-            this.byte_buf.push(b);
+            this.send_buf.push(b);
         },
         write: function (buf) {
-            if (this.byte_buf.length > 0) {
-                this.send_buf.push(this.byte_buf);
-                this.byte_buf = [];
-            }
-            this.send_buf.push(buf);
+             buf.forEach(function (b) {
+                this.send_buf.push(b);
+            })
         },
         /**
          * Returns the send buffer.
@@ -306,7 +293,7 @@ define([
          * @returns {string} The send buffer.
          */
         getSendBuffer: function () {
-            return this.send_buf.join();
+            return this.send_buf;
         }
 
     };
