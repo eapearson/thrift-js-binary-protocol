@@ -46,6 +46,7 @@ define([
         this.useCORS = (options && options.useCORS);
         this.timeout = (options && options.timeout);
         this.send_buf = [];
+        this.byte_buf = [];
         this.recv_buf = [];        
     };
 
@@ -214,8 +215,7 @@ define([
                     xhr.setRequestHeader('Accept', 'application/x-thrift');
                     xhr.setRequestHeader('Content-type', 'application/x-thrift');
                     xhr.responseType = 'arraybuffer';
-                    xhr.send(new Uint8Array(thriftTransport.send_buf));
-                    // xhr.send(postData);
+                    xhr.send(new Uint8Array(thriftTransport.send_buf.join()));
                 } catch (ex) {
                     reject({
                         type: 'ThriftError',
@@ -264,29 +264,20 @@ define([
             if (avail === 0) {
                 return null;
             }
-
             var ret = this.recv_buf[this.rpos];
             this.rpos += 1;
-
-            //clear buf when complete?
             return ret;
         },
         read: function (len) {
             var avail = this.wpos - this.rpos;
-
+            if (avail >= len) {
+                this.rpos += len;
+                return this.recv_buf.subarray(this.rpos - len, this.rpos);                
+            }
             if (avail === 0) {
-                return [];
+                return new Uint8Array();
             }
-
-            // var give = len;
-
-            if (avail < len) {
-                throw new Error('Request more bytes (' + len + ') than are available (' + avail + ')');
-                // give = avail;
-            }
-
-            this.rpos += len;
-            return this.recv_buf.slice(this.rpos - len, this.rpos);
+            throw new Error('Requested more bytes (' + len + ') than are available (' + avail + ')');
         },
         /**
          * Returns the entire response buffer.
@@ -300,14 +291,14 @@ define([
          * @param {string} buf - The buffer to send.
          */
         writeByte: function (b) {
-            this.send_buf.push(b);
+            this.byte_buf.push(b);
         },
         write: function (buf) {
-            // this.send_buf = buf;
-//            buf.forEach(function (byte) {
-//                this.send_buf.push(byte);
-//            })
-            this.send_buf = this.send_buf.concat(buf);
+            if (this.byte_buf.length > 0) {
+                this.send_buf.push(this.byte_buf);
+                this.byte_buf = [];
+            }
+            this.send_buf.push(buf);
         },
         /**
          * Returns the send buffer.
@@ -315,7 +306,7 @@ define([
          * @returns {string} The send buffer.
          */
         getSendBuffer: function () {
-            return this.send_buf;
+            return this.send_buf.join();
         }
 
     };
