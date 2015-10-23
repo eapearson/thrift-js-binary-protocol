@@ -1,35 +1,80 @@
 # Javascript clients for Apache Thrift
 
-An implementation of and XMLHttpRequest transport and TBinaryProtocol for JavaScript Thrift library.
+An implementation of and transports and protocols for JavaScript Thrift library.
+
+## Features
+
+- protocols:
+    - binary
+    - json
+- transports
+    - xhr
+    - websocket
+    -echo
+- testing
+- documentation
 
 ## History
 
-- The binary protocol was lifted from:
-- The XMLHttpRequest and other transports extracted from the Thrift core
+Most of the code lifted out of other projects:
+    - The binary protocol was lifted from Radoslaw Gruchalski's project
+    - The XMLHttpRequest and other transports extracted from the Thrift core
 
-As we began to integrate the Thrift javascript client for our service apis, it was discovered that the javascript components in both the Thrift core, as well as the most advanced binary protocol implementation, both suffered from problems. The Thrift core javascript was too tied into the JSON protocol implementation found therein, and included code that we would never use. E.g. the 
+The echo transport is our own contribution. It is for testing.
+
+As we began to integrate the Thrift javascript client for our service apis, it was discovered that the javascript components in both the Thrift core, as well as the most advanced binary protocol implementation, both suffered from problems. The Thrift core javascript libraries were too intertwined, and were packaged in a single library containing code that would never be used or tested.
+
+At the moment (delete this when no longer true!) just the binary protocol, xhr transport, and echo transport are used and supported. The json protocol and websocket transports should be brought up to speed. It is unknown if the websocket implementation really works.
+
+## Future 
+
+Since this is the bedrock of Javascript thrift clients, it needs to be tested, stable, and performant. Our testing needs to reflect and encourage these characterstics. To that end, we still have work to do! In order to test and excercise the transports, we need a service and api implementation to run against. This would probably best be implemented in this project as a nodejs, to reduce the extra dependencies of, say, a python service.
 
 
 ## Running tests
 
-TO BE DONE
+There is a test framework in place, using Karma and Jasmine. There are tests for writing and reading basic types to an "echo" transport.
+
+TODO
+- add code coverage support
+- test all types with echo transport
+- add functional testing of the xhr transport (need test server and spec first)
 
 ## Usage
-
 
 `Thrift.BinaryProtocol` depends on `thrift` library being present.
 
     <script src="thrift.js"></script>
-    <script src="thrift-js-binary-protocol.js"></script>
+    <script src="thrift-binary-protocol.js"></script>
     <script>
       var transport = new Thrift.Transport("/dummy");
       var protocol  = new Thrift.TBinaryProtocol(transport);
       ...
     </script>
 
-All methods of the standard `TBinaryProtocol` are implemented.
+All methods of the standard `TBinaryProtocol` are implemented (ref).
 
-PROVIDE REFERENCE to Thrift protocol definitions
+See the /site directory in this project for a complete example utilizing the echo transport.
+
+## Documentation
+
+
+## References
+
+- original binary protocol implementation:
+- thrift project:
+    - TODO: PROVIDE REFERENCE to Thrift protocol definitions
+
+## TODO
+
+- complete tests
+- create testing reference javascript service (use node js implementation)
+- review all code, improve comments
+- review licensing and attributions
+- add usage documentation
+- find cananoical references for thrift interfaces (tricky to find, thrift docs 
+are not very deep and not well organized.)
+    
 
 ## License
 

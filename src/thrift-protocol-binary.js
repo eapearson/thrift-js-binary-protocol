@@ -43,11 +43,9 @@ define([
     'use strict';
     Thrift.TBinaryProtocol = function (transport, strictRead, strictWrite) {
         this.transport = transport;
-        this.buffer_read_offset = 0;
         this.strictRead = (strictRead !== undefined ? strictRead : false);
         this.strictWrite = (strictWrite !== undefined ? strictWrite : false);
     };
-    // Thrift.inherits(Thrift.TBinaryProtocol, Thrift.Protocol, 'binaryProtocol');
 
     Thrift.TBinaryProtocol.VERSION_MASK = 0xffff0000;
     Thrift.TBinaryProtocol.VERSION_1 = 0x80010000;
@@ -414,7 +412,6 @@ define([
          next value found in the protocol buffer */
         readByte: function () {
             var val = this.transport.readByte();
-            // [this.buffer_read_offset++];
             if (val > 0x7f) {
                 val = 0 - ((val - 1) ^ 0xff);
             }
