@@ -25,6 +25,13 @@ define([
 ], function (Thrift, Promise) {
     'use strict';
     
+    function TTransportError() {
+        this.name = 'TTransportError';
+    }
+    TTransportError.prototype = Object.create(Thrift.TException.prototype);
+    TTransportError.prototype.constructor = TTransportError;
+    Thrift.TTransportError = TTransportError; 
+    
     function TXHRTransportError(error) {
         this.name = 'TXHRTransportError';
         this.reason = error.reason;
@@ -33,7 +40,8 @@ define([
         this.data = error.data;
         this.stack = (new Error()).stack;
     }
-    TXHRTransportError.prototype = Object.create(Thrift.TException.prototype);
+    // Steal the function prototype from Thrift.TException
+    TXHRTransportError.prototype = Object.create(TTransportError.prototype);
     TXHRTransportError.prototype.constructor = TXHRTransportError;
     Thrift.TXHRTransportError = TXHRTransportError;
     
