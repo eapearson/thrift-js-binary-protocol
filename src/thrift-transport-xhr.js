@@ -35,6 +35,7 @@ define([
     }
     TXHRTransportError.prototype = Object.create(Thrift.TException.prototype);
     TXHRTransportError.prototype.constructor = TXHRTransportError;
+    Thrift.TXHRTransportError = TXHRTransportError;
     
 
     /**
