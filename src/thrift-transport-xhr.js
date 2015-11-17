@@ -24,6 +24,18 @@ define([
     'bluebird'
 ], function (Thrift, Promise) {
     'use strict';
+    
+    function TXHRTransportError(error) {
+        this.name = 'TXHRTransportError';
+        this.reason = error.reason;
+        this.message = error.message;
+        this.suggestions = error.suggestions;
+        this.data = error.data;
+        this.stack = (new Error()).stack;
+    }
+    TXHRTransportError.prototype = Object.create(Thrift.TException.prototype);
+    TXHRTransportError.prototype.constructor = TXHRTransportError;
+    
 
     /**
      * Constructor Function for the XHR transport.
@@ -94,60 +106,53 @@ define([
 
                 xhr.onload=  function (e) {
                     if (xhr.status === 502) {
-                        reject({
-                            type: 'ThriftError',
+                        reject(new TXHRTransportError({
                             reason: 'ProxyError',
                             message: 'The thrift service is not running behind the proxy',
                             data: xhr
-                        });
+                        }));
                         return;
                     } else if (xhr.status === 500) {
-                        reject({
-                            type: 'ThriftError',
+                        reject(new TXHRTransportError({
                             reason: 'ServiceError',
                             message: 'The thrift service or proxy has crashed',
                             data: xhr
-                        });
+                        }));
                         return;
                     } else if (xhr.status === 400) {
-                        reject({
-                            type: 'ThriftError',
+                        reject(new TXHRTransportError({
                             reason: 'RequestError',
                             message: 'There was an error in the request',
                             data: xhr
-                        });
+                        }));
                         return;
                     } else if (xhr.status === 404) {
-                        reject({
-                            type: 'ThriftError',
+                        reject(new TXHRTransportError({
                             reason: 'NotFound',
                             message: 'The thrift service could not be contacted, incorrect request',
                             data: xhr
-                        });
+                        }));
                         return;
                     } else if (xhr.status >= 400 && xhr.status < 500) {
-                        reject({
-                            type: 'ThriftError',
+                        reject(new TXHRTransportError({
                             reason: 'GeneralClientError',
                             message: 'An error was reported, blamed on the client request',
                             data: xhr
-                        });
+                        }));
                         return;
                     } else if (xhr.status >= 500) {
-                        reject({
-                            type: 'ThriftError',
+                        reject(new TXHRTransportError({
                             reason: 'GeneralServerError',
                             message: 'An error was reported, blamed on the server',
                             data: xhr
-                        });
+                        }));
                         return;
                     } else if (xhr.status !== 200) {
-                        reject({
-                            type: 'ThriftError',
+                        reject(new TXHRTransportError({
                             reason: 'UnexpectedResponse',
                             message: 'The server responded with an unexpected code',
                             data: xhr
-                        });
+                        }));
                         return;
                     }
                     var buf = new Uint8Array(xhr.response);
@@ -160,30 +165,28 @@ define([
                     }
                 };
                 xhr.ontimeout = function (e) {
-                    reject({
-                        type: 'ThriftError',
+                    reject(new TXHRTransportError({
                         reason: 'RequestTimeout',
                         message: 'General request timeout',
                         suggestions: 'The service device is not reachable, the client tried until the timeout period expired',
                         data: xhr
-                    });
+                    }));
                 };
                 xhr.onerror = function (e) {
-                    reject({
-                        type: 'ThriftError',
+                    reject(new TXHRTransportError({
                         reason: 'RequestError',
                         message: 'General request error',
                         suggestions: 'The service device is operating, but the http server is unavailable.',
                         data: xhr
-                    });
+                    }));
                 };
                 xhr.onabort = function (e) {
-                    reject({
+                    reject(new TXHRTransportError({
                         type: 'ThriftError',
                         reason: 'RequestAbort',
                         message: 'General request abort',
                         data: xhr
-                    });
+                    }));
                 };
                
 
@@ -191,13 +194,12 @@ define([
                 try {
                     xhr.open('POST', thriftTransport.url, true);
                 } catch (ex) {
-                    reject({
-                        type: 'ThriftError',
+                    reject(new TXHRTransportError({
                         reason: 'ConnectionOpenError',
                         message: 'Error opening connecting to to thrift http service',
                         suggestions: 'This is probably a malformed url',
                         data: xhr
-                    });
+                    }));
                 }
 
                 try {
@@ -206,13 +208,13 @@ define([
                     xhr.responseType = 'arraybuffer';
                     xhr.send(new Uint8Array(thriftTransport.send_buf));
                 } catch (ex) {
-                    reject({
+                    reject(new TXHRTransportError({
                         type: 'ThriftError',
                         reason: 'ConnectionSendError',
                         message: 'Error sending data to thrift http service',
                         suggestions: '',
                         data: xhr
-                    });
+                    }));
                 }
             });
         },
@@ -300,11 +302,3 @@ define([
     
     return Thrift;
 });
-
-
-
-
-
-
-
-
