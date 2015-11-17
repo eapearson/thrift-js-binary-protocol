@@ -30,7 +30,7 @@ define([
     }
     TTransportError.prototype = Object.create(Thrift.TException.prototype);
     TTransportError.prototype.constructor = TTransportError;
-    Thrift.TTransportError = TTransportError; 
+    Thrift.TTransportError = TTransportError;
     
     function TXHRTransportError(error) {
         this.name = 'TXHRTransportError';
@@ -113,7 +113,7 @@ define([
             return new Promise(function (resolve, reject, notify) {
                 var xhr = new XMLHttpRequest();
 
-                xhr.onload=  function (e) {
+                xhr.onload = function (e) {
                     if (xhr.status === 502) {
                         reject(new TXHRTransportError({
                             reason: 'ProxyError',
@@ -170,6 +170,8 @@ define([
                     try {
                         resolve(recv_method.call(client));
                     } catch (ex) {
+                        console.log('REJECTED in onload');
+                        console.log(ex);
                         reject(ex);
                     }
                 };
