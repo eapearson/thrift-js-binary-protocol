@@ -15,6 +15,6 @@
   "ignore": [],
   "devDependencies": {
     "requirejs": "2.1.20",
-    "bluebird": "2.10.2"
+    "bluebird": "^3.0.0"
   }
 }

@@ -25,15 +25,20 @@ define([
 ], function (Thrift, Promise) {
     'use strict';
     
-    function TTransportError() {
-        this.name = 'TTransportError';
+    /*
+     * A base Exception object for 
+     * 
+     * @returns {thrift-transport-xhr_L25.TTransportError}
+     */
+    function TTransportException() {
+        this.name = 'TTransportException';
     }
-    TTransportError.prototype = Object.create(Thrift.TException.prototype);
-    TTransportError.prototype.constructor = TTransportError;
-    Thrift.TTransportError = TTransportError;
+    TTransportException.prototype = Object.create(Thrift.TException.prototype);
+    TTransportException.prototype.constructor = TTransportException;
+    Thrift.TTransportError = TTransportException;
     
-    function TXHRTransportError(error) {
-        this.name = 'TXHRTransportError';
+    function TXHRTransportException(error) {
+        this.name = 'TXHRTransportException';
         this.reason = error.reason;
         this.message = error.message;
         this.suggestions = error.suggestions;
@@ -41,9 +46,9 @@ define([
         this.stack = (new Error()).stack;
     }
     // Steal the function prototype from Thrift.TException
-    TXHRTransportError.prototype = Object.create(TTransportError.prototype);
-    TXHRTransportError.prototype.constructor = TXHRTransportError;
-    Thrift.TXHRTransportError = TXHRTransportError;
+    TXHRTransportException.prototype = Object.create(TXHRTransportException.prototype);
+    TXHRTransportException.prototype.constructor = TXHRTransportException;
+    Thrift.TXHRTransportError = TXHRTransportException;
     
 
     /**
@@ -187,7 +192,7 @@ define([
                     reject(new TXHRTransportError({
                         reason: 'RequestError',
                         message: 'General request error',
-                        suggestions: 'The service device is operating, but the http server is unavailable.',
+                        suggestions: 'The service device is operating, but the http server is unavailable',
                         data: xhr
                     }));
                 };

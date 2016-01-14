@@ -103,5 +103,53 @@ define([
             var result = protocol.readI64();
             expect(result.value).toBe(arg);
         });
+        it('Set and get map', function () {
+            var transport = new Thrift.EchoTransport(),
+                protocol = new Thrift.TBinaryProtocol(transport),
+                arg = {hi: 'there', greetings: 'earthling'},
+                keys = Object.keys(arg);
+            protocol.writeMapBegin(Thrift.Type.STRING, Thrift.Type.STRING, keys.length);
+            keys.forEach(function (key) {
+                protocol.writeString(key);
+                protocol.writeString(arg[key]);
+            });
+            protocol.writeMapEnd();
+            var mapHeader = protocol.readMapBegin(), result = {};
+            
+            for (var i = 0; i < mapHeader.size; i += 1) {
+                var key = protocol.readString().value,
+                    value = protocol.readString().value;
+                result[key] = value;
+            }
+            protocol.readMapEnd();
+            // todo evaluate header as well.
+            expect(result).toEqual(arg);
+                
+        });
+        
+         it('Sets and gets a Set of strings', function () {
+            var transport = new Thrift.EchoTransport(),
+                protocol = new Thrift.TBinaryProtocol(transport),
+                listInfo, i, result,
+                arg = ['john', 'frank', 'alice'],
+                set = [];
+            protocol.writeSetBegin(Thrift.Type.STRING, arg.length);
+            arg.forEach(function (name) {
+                protocol.writeString(name);
+            });
+            protocol.writeSetEnd();
+
+            listInfo = protocol.readSetBegin();
+            for (i = 0; i < listInfo.size; i += 1) {
+                result = protocol.readString();
+                if (result) {
+                    set.push(result.value);
+                }
+            }
+            protocol.readSetEnd();
+
+            expect(set).toEqual(arg);
+        });
+        
     });
 });
