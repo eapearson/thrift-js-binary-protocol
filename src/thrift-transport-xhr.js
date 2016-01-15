@@ -46,7 +46,7 @@ define([
         this.stack = (new Error()).stack;
     }
     // Steal the function prototype from Thrift.TException
-    TXHRTransportException.prototype = Object.create(TXHRTransportException.prototype);
+    TXHRTransportException.prototype = Object.create(TTransportException.prototype);
     TXHRTransportException.prototype.constructor = TXHRTransportException;
     Thrift.TXHRTransportException = TXHRTransportException;
     
