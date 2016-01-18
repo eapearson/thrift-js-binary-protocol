@@ -73,7 +73,7 @@ define([
         this.timeout = (options && options.timeout);
         this.send_buf = [];
         this.byte_buf = [];
-        this.recv_buf = [];        
+        this.recv_buf = new Uint8Array(0);     
     };
 
     Thrift.TXHRTransport.prototype = {
@@ -181,6 +181,7 @@ define([
                     }
                 };
                 xhr.ontimeout = function (e) {
+                    
                     reject(new TXHRTransportException({
                         reason: 'RequestTimeout',
                         message: 'General request timeout',
